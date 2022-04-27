@@ -1,6 +1,6 @@
 {{- if .Values.s3.ingress.enabled -}}
 {{- $fullName := include "sorry-cypress-helm.fullname" . -}}
-apiVersion: networking.k8s.io/v1
+apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ $fullName }}-s3
@@ -14,7 +14,6 @@ metadata:
     {{- toYaml . | nindent 4 }}
   {{- end }}
 spec:
-  ingressClassName: {{ .Values.s3.ingress.ingressClassName }}
   {{- if .Values.s3.ingress.tls }}
   tls:
     {{- range .Values.s3.ingress.tls }}
@@ -31,11 +30,8 @@ spec:
       http:
         paths:
           - path: {{ .path | default "/" }}
-            pathType: Prefix
             backend:
-              service:
-                name: {{ $fullName }}-s3
-                port:
-                  number: 80
+              servicePort: 80
+              serviceName: {{ $fullName }}-s3
     {{- end }}
   {{- end }}
